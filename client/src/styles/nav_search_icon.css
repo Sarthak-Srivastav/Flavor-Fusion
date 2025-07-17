@@ -1,0 +1,63 @@
+.input-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 15px;
+  position: relative;
+  margin-right: 15px;
+}
+
+.input {
+  border-style: none;
+  /* height: 50px;*/
+  width: 350px; 
+  padding: 8px;
+  outline: none;
+  /* border: 1px solid #fdfdfd; */
+  border-radius: 20px;
+  transition: 0.5s ease-in-out;
+  background-color: #ffffffe2;
+  box-shadow: 0px 0px 3px #2d2d2d;
+  padding-right: 40px;
+  color: #161616;
+}
+
+.input::placeholder,
+.input {
+  font-family: "Trebuchet MS", "Lucida Sans Unicode", "Lucida Grande",
+    "Lucida Sans", Arial, sans-serif;
+  font-size: 19px;
+}
+
+.input::placeholder {
+  color: #363636;
+}
+
+.icon {
+  color: #000000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: absolute;
+  right: 0px;
+  cursor: pointer;
+  width: 50px;
+  height: 50px;
+  outline: none;
+  border-style: none;
+  border-radius: 50%;
+  pointer-events: painted;
+  background-color: transparent;
+  transition: 0.2s linear;
+}
+
+.icon:focus ~ .input,
+.input:focus {
+  box-shadow: none;
+  width: 400px;
+  border-radius: 20px;
+  background-color: #bababa6f;
+  /* border: 0.5px solid #ffd900; */
+  border-bottom: 4px solid #333333;
+  transition: all 500ms cubic-bezier(0, 0.11, 0.35, 2);
+}
