@@ -185,7 +185,7 @@ const Footer = () => {
                   About Us
                 </NavLink>
               </li>
-              <li>
+              {/* <li>
                 <NavLink
                   to="/contact"
                   className="nav-link-1"
@@ -194,7 +194,7 @@ const Footer = () => {
                 >
                   Contact
                 </NavLink>
-              </li>
+              </li> */}
               <li>
                 <NavLink
                   to="/policy"

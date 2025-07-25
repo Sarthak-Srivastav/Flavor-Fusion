@@ -16,6 +16,9 @@ const AdminMenu = () => {
           <NavLink to="/dashboard/admin/products" className="list-group-item list-group-item-action">
             Recipes
           </NavLink>
+          <NavLink to="/dashboard/admin/submissions" className="list-group-item list-group-item-action">
+            Submissions
+          </NavLink>
           {/* <NavLink to="/dashboard/admin/Messages" className="list-group-item list-group-item-action">
             Messages
           </NavLink> */}

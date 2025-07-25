@@ -2,10 +2,10 @@ import express from "express";
 import {
   ContactUsController,
   forgetPasswordController,
-  getAllOrdersController,
-  getOrdersController,
+  // getAllOrdersController,
+  // getOrdersController,
   loginController,
-  orderStatusController,
+  // orderStatusController,
   registerController,
   testController,
   updateProfileController,
@@ -42,6 +42,7 @@ router.get("/admin-auth", requireSignIn, isAdmin, (req, res) => {
 router.put("/profile", requireSignIn, updateProfileController);
 export default router;
 
+/*
 //orders
 router.get("/orders", requireSignIn, getOrdersController);
 
@@ -55,6 +56,6 @@ router.put(
   isAdmin,
   orderStatusController
 );
-
+*/
 //Contact Us || METHOD POST
 router.post("/contactMessage", ContactUsController);

@@ -1,6 +1,6 @@
 import { comparePassword, hashPassword } from "../helpers/authHelper.js";
 import userModel from "../models/userModel.js";
-import orderModel from "../models/orderModel.js";
+// import orderModel from "../models/orderModel.js";
 import JWT from "jsonwebtoken";
 import ContactUsModel from "../models/ContactUsModel.js";
 
@@ -287,6 +287,7 @@ export const updateProfileController = async (req, res) => {
 };
 
 //orders
+/*
 export const getOrdersController = async (req, res) => {
   try {
     const orders = await orderModel
@@ -342,7 +343,7 @@ export const orderStatusController = async (req, res) => {
     });
   }
 };
-
+*/
 export const ContactUsController = async (req, res) => {
   try {
     const { fullname, email, message } = req.body;
@@ -374,6 +375,49 @@ export const ContactUsController = async (req, res) => {
     res.status(500).send({
       success: false,
       message: "Error in Message Transfer",
+      error,
+    });
+  }
+};
+
+export const RecipeSubmissionController = async (req, res) => {
+  try {
+    const { origin, name, recipe, calories, type, userName, userEmail } = req.body;
+    let photo = {};
+    if (req.file) {
+      photo.data = req.file.buffer;
+      photo.contentType = req.file.mimetype;
+    }
+    // Validations
+    if (!userName) return res.send({ message: "User name is required" });
+    if (!userEmail) return res.send({ message: "User email is required" });
+    if (!origin) return res.send({ message: "Origin is required" });
+    if (!name) return res.send({ message: "Name is required" });
+    if (!recipe) return res.send({ message: "Recipe is required" });
+    if (!calories) return res.send({ message: "Calories are required" });
+    if (!type) return res.send({ message: "Type is required" });
+    // Save
+    const RecipeSubmission = (await import("../models/ContactUsModel.js")).default;
+    const newRecipe = await new RecipeSubmission({
+      userName,
+      userEmail,
+      photo,
+      origin,
+      name,
+      recipe,
+      calories,
+      type,
+    }).save();
+    res.status(201).send({
+      success: true,
+      message: "Recipe submitted successfully!",
+      recipe: newRecipe,
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).send({
+      success: false,
+      message: "Error in Recipe Submission",
       error,
     });
   }

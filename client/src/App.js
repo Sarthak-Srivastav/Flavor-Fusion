@@ -11,6 +11,8 @@ import PrivateRoute from "./components/Routes/Private";
 import ForgetPassword from "./pages/Auth/ForgetPassword";
 import AdminRoute from "./components/Routes/AdminRoute";
 import AdminDashboard from "./pages/admin/AdminDashboard";
+import Submissions from "./pages/admin/Submissions";
+import SubmissionsDetail from "./pages/admin/SubmissionsDetail";
 import Users from "./pages/admin/User";
 import Messages from "./pages/admin/Messages";
 import CreateProduct from "./pages/admin/CreateProduct";
@@ -39,10 +41,10 @@ function App() {
   };
   return (  
     <>
-      {/* <div>
+       <div>
         <ButtonComponent onClick={toggleWindow} />
         {showWindow && <WindowComponent />}
-      </div> */}
+      </div> 
       <Routes>
         <Route path="/" element={<HomePage />} />
         <Route path="/product/:slug" element={<ProductDetails />} />
@@ -55,6 +57,8 @@ function App() {
           <Route path="admin/create-category" element={<CreateCategory />} />
           <Route path="admin/create-recipe" element={<CreateProduct />} />
           <Route path="admin/product/:slug" element={<UpdateProduct />} />
+          <Route path="admin/submissions" element={<Submissions />} />
+          <Route path="admin/submissions/:id" element={<SubmissionsDetail />} />
           <Route path="admin/products" element={<Products />} />
           <Route path="admin/users" element={<Users />} />
           <Route path="admin/Messages" element={<Messages />} />

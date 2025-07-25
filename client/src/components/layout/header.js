@@ -9,6 +9,7 @@ import useCategory from "../../hooks/useCategory";
 import { useCart } from "../../context/cart";
 import { Badge } from "antd";
 import { FaHome } from "react-icons/fa";
+import { FaPaperPlane } from "react-icons/fa";
 import { RiDashboardFill } from "react-icons/ri";
 import { FiLogOut } from "react-icons/fi";
 import { MdCategory } from "react-icons/md";
@@ -167,7 +168,7 @@ const Header = () => {
                           </NavLink>
                         </li> */}
 
-                        <li>
+                        <li className="nav-item">
                           <NavLink
                             onClick={handleLogout}
                             to="/login"
@@ -181,13 +182,15 @@ const Header = () => {
                   </>
                 )}
 
-                {/* <li className="nav-item">
-                  <Badge count={cart?.length} showZero>
-                    <NavLink to="/favorite" className="nav-link cart-count">
-                      Favorite ❤️
-                    </NavLink>
-                  </Badge>
-                </li> */}
+                <li className="nav-item">
+                  <NavLink
+                    to="/contact"
+                    className="nav-link"
+                    aria-current="page"
+                  >
+                    <FaPaperPlane /> Submit
+                  </NavLink>
+                </li>
               </ul>
             </div>
           </div>

@@ -8,6 +8,9 @@ import categoryRoutes from "./routes/categoryRoutes.js";
 import cors from "cors";
 import productRoutes from "./routes/productRoutes.js";
 
+import reviewRoute from "./routes/reviewRoute.js";
+import recipeRoutes from "./routes/recipeRoutes.js";
+
 import {
   GoogleGenerativeAI,
   HarmCategory,
@@ -27,15 +30,17 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 app.use(morgan("dev"));
+app.use("/api/v1/reviews", reviewRoute);
 
 //gemini
-const MODEL_NAME = "gemini-pro";
+const MODEL_NAME = "gemini-2.5-flash";
 const API_KEY = process.env.API_KEY;
 
 //routes
 app.use("/api/v1/auth", authRoutes);
 app.use("/api/v1/category", categoryRoutes);
 app.use("/api/v1/product", productRoutes);
+app.use("/api/v1/recipe", recipeRoutes);
 
 //rest api
 app.get("/", (req, res) => {
@@ -59,35 +64,10 @@ async function runChat(userInput) {
   const genAI = new GoogleGenerativeAI(API_KEY);
   const model = genAI.getGenerativeModel({ model: MODEL_NAME });
 
-  const generationConfig = {
-    temperature: 0.9,
-    topK: 1,
-    topP: 1,
-    maxOutputTokens: 1000,
-  };
-
-  const safetySettings = [
-    {
-      category: HarmCategory.HARM_CATEGORY_HARASSMENT,
-      threshold: HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE,
-    },
-    // Add other safety settings if needed
-  ];
-
-  const chat = model.startChat({
-    generationConfig,
-    safetySettings,
-    history: [
-      {
-        role: "user",
-        parts: [{ text: userInput }],
-      },
-    ],
-  });
-
-  const result = await chat.sendMessage(userInput);
-  const response = result.response;
-  return response.text();
+  const result = await model.generateContent(userInput);
+  const response = await result.response;
+  const text = response.text();
+  return text || "Sorry, I didn't understand that. Please try again!";
 }
 
 app.post("/chat", async (req, res) => {

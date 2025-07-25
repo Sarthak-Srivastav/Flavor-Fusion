@@ -11,7 +11,23 @@ import "../fonts/KgHoloceneRegular-lgjKy.ttf";
 import { useParams, useNavigate } from "react-router-dom";
 import { useCart } from "../context/cart";
 import { toast } from "react-hot-toast";
+import { useAuth } from "../context/Auth";
 import "../styles/productCard.css";
+import { FaStar } from "react-icons/fa";
+
+// Helper to render stars for display (read-only)
+const renderStars = (rating, max = 5) =>
+  Array.from({ length: max }, (_, i) => (
+    <span key={i} className={i < rating ? "star filled" : "star inactive"}>★</span>
+  ));
+
+// Helper to render avatar
+const renderAvatar = (user) => {
+  if (user?.name) {
+    return <div className="review-avatar">{user.name[0].toUpperCase()}</div>;
+  }
+  return <div className="review-avatar">U</div>;
+};
 
 const ProductDetails = () => {
   const navigate = useNavigate();
@@ -19,6 +35,20 @@ const ProductDetails = () => {
   const params = useParams();
   const [product, setProduct] = useState({});
   const [relatedProducts, setRelatedProducts] = useState([]);
+  const [reviews, setReviews] = useState([]);
+  const [averageRating, setAverageRating] = useState(0);
+  const [newRating, setNewRating] = useState(5);
+  const [newComment, setNewComment] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+  const [auth] = useAuth();
+  const [hoverRating, setHoverRating] = useState(0);
+  const [reviewPage, setReviewPage] = useState(0);
+  const REVIEWS_PER_PAGE = 3;
+  const paginatedReviews = reviews.slice(
+    reviewPage * REVIEWS_PER_PAGE,
+    reviewPage * REVIEWS_PER_PAGE + REVIEWS_PER_PAGE
+  );
+  const totalPages = Math.ceil(reviews.length / REVIEWS_PER_PAGE);
 
   const scrollToTop = () => {
     window.scrollTo(0, 0); // Scroll to the top of the page
@@ -52,6 +82,45 @@ const ProductDetails = () => {
       console.log(error);
     }
   };
+
+  // Fetch reviews when product loads
+  useEffect(() => {
+    if (product._id) fetchReviews();
+  }, [product._id]);
+
+  const fetchReviews = async () => {
+    try {
+      const { data } = await axios.get(`/api/v1/reviews/${product._id}`);
+      setReviews(data.reviews);
+      setAverageRating(data.averageRating);
+    } catch (err) {
+      setReviews([]);
+      setAverageRating(0);
+    }
+  };
+
+  const handleReviewSubmit = async (e) => {
+    e.preventDefault();
+    setSubmitting(true);
+    try {
+      await axios.post(
+        `/api/v1/reviews/${product._id}`,
+        { rating: newRating, comment: newComment },
+        {
+          headers: { Authorization: auth?.token || undefined }
+        }
+      );
+      toast.success("Review submitted!");
+      setNewRating(5);
+      setNewComment("");
+      fetchReviews();
+    } catch (err) {
+      toast.error(err.response?.data?.error || "Could not submit review");
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
   return (
     <Layout>
       <div className="container-fluid">
@@ -119,6 +188,119 @@ const ProductDetails = () => {
         </div>
       </div>
       <hr />
+
+      {/* Review & Rating Section */}
+      <div className="review-section">
+        <div className="review-header-main">
+          <div className="review-title">Reviews</div>
+          <div className="average-rating">
+            <div className="stars">{renderStars(Math.round(averageRating))}</div>
+            <span style={{ color: '#222', fontWeight: 600, marginLeft: 6 }}>{averageRating.toFixed(1)}</span>
+            <span style={{ color: '#888', fontSize: '1rem', marginLeft: 4 }}>/ 5</span>
+          </div>
+        </div>
+        {auth?.user && (
+          <form className="review-form" onSubmit={handleReviewSubmit}>
+            <h4>Write a Review</h4>
+            <div className="form-group">
+              <label>Rating:</label>
+              <div className="rating-stars-input">
+                {Array.from({ length: 5 }, (_, i) => {
+                  const isFilled = hoverRating ? i <= hoverRating - 1 : i <= newRating - 1;
+                  const isHovered = hoverRating && i === hoverRating - 1;
+                  return (
+                    <button
+                      type="button"
+                      key={i}
+                      className={
+                        "rating-star-btn" +
+                        (isFilled ? " filled" : " inactive") +
+                        (isHovered ? " hovered" : "")
+                      }
+                      onClick={() => setNewRating(i + 1)}
+                      onMouseEnter={() => setHoverRating(i + 1)}
+                      onMouseLeave={() => setHoverRating(0)}
+                      aria-label={`Rate ${i + 1} star${i === 0 ? "" : "s"}`}
+                    >
+                      ★
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+            <div className="form-group">
+              <label>Comment:</label>
+              <textarea value={newComment} onChange={e => setNewComment(e.target.value)} required className="comment-input" placeholder="Write your review..." />
+            </div>
+            <button type="submit" className="submit-review-btn" disabled={submitting}>{submitting ? "Submitting..." : "Submit Review"}</button>
+          </form>
+        )}
+        {!auth?.user && <p className="login-to-review">Login to leave a review.</p>}
+        {reviews.length === 0 ? (
+          <p className="no-reviews">No reviews yet. Be the first to review this recipe!</p>
+        ) : (
+          <>
+            <div className="reviews-list">
+              {paginatedReviews.map((r, idx) => (
+                <div className="review-card" key={r._id || idx}>
+                  <div className="review-header">
+                    {renderAvatar(r.user)}
+                    <span className="review-user">{r.user?.name || "User"}</span>
+                    <span className="review-date">{new Date(r.createdAt).toLocaleDateString()}</span>
+                  </div>
+                  <div className="review-rating">{renderStars(r.rating)}</div>
+                  <div className="review-comment">{r.comment}</div>
+                </div>
+              ))}
+            </div>
+            {reviews.length > REVIEWS_PER_PAGE && (
+              <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '1.5rem', marginTop: '1.2rem' }}>
+                <button
+                  onClick={() => setReviewPage((p) => Math.max(0, p - 1))}
+                  disabled={reviewPage === 0}
+                  style={{
+                    background: '#fff',
+                    border: '1px solid #eee',
+                    borderRadius: '50%',
+                    width: 38,
+                    height: 38,
+                    fontSize: 22,
+                    color: '#888',
+                    cursor: reviewPage === 0 ? 'not-allowed' : 'pointer',
+                    boxShadow: '0 2px 8px rgba(0,0,0,0.07)',
+                    transition: 'background 0.15s',
+                  }}
+                  aria-label="Previous reviews"
+                >
+                  &#8592;
+                </button>
+                <span style={{ color: '#888', fontSize: 15 }}>
+                  {reviewPage + 1} / {totalPages}
+                </span>
+                <button
+                  onClick={() => setReviewPage((p) => Math.min(totalPages - 1, p + 1))}
+                  disabled={reviewPage >= totalPages - 1}
+                  style={{
+                    background: '#fff',
+                    border: '1px solid #eee',
+                    borderRadius: '50%',
+                    width: 38,
+                    height: 38,
+                    fontSize: 22,
+                    color: '#888',
+                    cursor: reviewPage >= totalPages - 1 ? 'not-allowed' : 'pointer',
+                    boxShadow: '0 2px 8px rgba(0,0,0,0.07)',
+                    transition: 'background 0.15s',
+                  }}
+                  aria-label="Next reviews"
+                >
+                  &#8594;
+                </button>
+              </div>
+            )}
+          </>
+        )}
+      </div>
 
       <div>
         <h3 className="text-center">Similar Recipes</h3>

@@ -1,16 +1,36 @@
 import mongoose from "mongoose";
 
-const ContactUsSchema = new mongoose.Schema(
+const RecipeSubmissionSchema = new mongoose.Schema(
   {
-    fullname: {
+    userName: {
       type: String,
       required: true,
     },
-    email: {
+    userEmail: {
       type: String,
       required: true,
     },
-    message: {
+    photo: {
+      data: Buffer,
+      contentType: String,
+    },
+    origin: {
+      type: String,
+      required: true,
+    },
+    name: {
+      type: String,
+      required: true,
+    },
+    recipe: {
+      type: String,
+      required: true,
+    },
+    calories: {
+      type: Number,
+      required: true,
+    },
+    type: {
       type: String,
       required: true,
     },
@@ -20,4 +40,4 @@ const ContactUsSchema = new mongoose.Schema(
   }
 );
 
-export default mongoose.model("ContactUs", ContactUsSchema);
+export default mongoose.model("RecipeSubmission", RecipeSubmissionSchema);
